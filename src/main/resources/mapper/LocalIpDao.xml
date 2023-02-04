@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatning.ip_scan.dao.LocalIpDao">
+
+    <resultMap id="BaseResultMap" type="com.gatning.ip_scan.entity.LocalIp">
+        <!--@Table local_ip-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="ipAddr" column="ip_addr" jdbcType="VARCHAR"/>
+        <result property="createdDate" column="created_date" jdbcType="TIMESTAMP"/>
+        <result property="ipStatus" column="ip_status" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          id, ip_addr, created_date, ip_status
+        from local_ip
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          id, ip_addr, created_date, ip_status
+        from local_ip
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="ipAddr != null and ipAddr != ''">
+                and ip_addr = #{ipAddr}
+            </if>
+            <if test="createdDate != null">
+                and created_date = #{createdDate}
+            </if>
+            <if test="ipStatus != null">
+                and ip_status = #{ipStatus}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from local_ip
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="ipAddr != null and ipAddr != ''">
+                and ip_addr = #{ipAddr}
+            </if>
+            <if test="createdDate != null">
+                and created_date = #{createdDate}
+            </if>
+            <if test="ipStatus != null">
+                and ip_status = #{ipStatus}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into local_ip(ip_addr, created_date, ip_status)
+        values (#{ipAddr}, #{createdDate}, #{ipStatus})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into local_ip(ip_addr, created_date, ip_status)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into local_ip(ip_addr, created_date, ip_status)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus})
+        </foreach>
+        on duplicate key update
+        ip_addr = values(ip_addr),
+        created_date = values(created_date),
+        ip_status = values(ip_status)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update local_ip
+        <set>
+            <if test="ipAddr != null and ipAddr != ''">
+                ip_addr = #{ipAddr},
+            </if>
+            <if test="createdDate != null">
+                created_date = #{createdDate},
+            </if>
+            <if test="ipStatus != null">
+                ip_status = #{ipStatus},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from local_ip where id = #{id}
+    </delete>
+
+    <select id="getByStatus" parameterType="boolean" resultMap="BaseResultMap">
+        select id, ip_addr, created_date, ip_status from local_ip where ip_status = #{ipStatus}
+    </select>
+
+</mapper>
+
