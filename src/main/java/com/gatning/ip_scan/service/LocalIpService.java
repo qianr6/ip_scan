@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * ip记录表(LocalIp)表服务接口
  *
@@ -62,6 +64,6 @@ public interface LocalIpService {
      * @param ipStatus 状态
      * @return IP
      */
-    LocalIp getByStatus(@Param("ipStatus") Boolean ipStatus);
+    List<LocalIp> getByStatus(@Param("ipStatus") Boolean ipStatus);
 
 }

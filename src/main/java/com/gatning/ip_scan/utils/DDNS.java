@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class  DDNS {
@@ -69,12 +70,17 @@ public class  DDNS {
     public ResultEntity send() {
         ResultEntity resultEntity = new ResultEntity();
         // 当前主机公网IP
-        String currentHostIP = ipScanUtils.getIpAddress();
+        List<String> currentHostIP = ipScanUtils.getIpAddress();
         //todo 需要对当前获取的地址与历史地址比对
-        boolean exitIp = false;
-        LocalIp byStatus = localIpService.getByStatus(true);
-        exitIp = null == byStatus || (!byStatus.getIpAddr().equals(currentHostIP));
-        if (exitIp) {
+        List<LocalIp> byStatus = localIpService.getByStatus(true);
+        List<String> ipNowList = byStatus.stream().map(LocalIp::getIpAddr).collect(Collectors.toList());
+        //exitIp = null == byStatus || (!byStatus.getIpAddr().equals(currentHostIP));
+        ipNowList.retainAll(currentHostIP);
+        if (ipNowList.isEmpty()) {
+            for(String ipNew : currentHostIP) {
+
+
+            }
             //记录新的IP
             LocalIp newLocalIp = new LocalIp();
             newLocalIp.setIpAddr(currentHostIP);

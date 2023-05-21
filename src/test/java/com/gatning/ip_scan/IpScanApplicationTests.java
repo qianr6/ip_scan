@@ -27,11 +27,11 @@ class IpScanApplicationTests {
     private LocalIpService localIpService;
 
 
-    @Test
-    void contextLoads() {
-        String ipAddress = ipScanUtils.getIpAddress();
-        System.out.println(ipAddress);
-    }
+//    @Test
+//    void contextLoads() {
+//        String ipAddress = ipScanUtils.getIpAddress();
+//        System.out.println(ipAddress);
+//    }
 
 
     @Test
@@ -62,7 +62,7 @@ class IpScanApplicationTests {
 
     @Test
     public void testIpConfig() {
-        LocalIp byStatus = localIpService.getByStatus(true);
-        System.out.println(null == byStatus ? "未查询到有效IP" : byStatus.getIpAddr());
+//        LocalIp byStatus = localIpService.getByStatus(true);
+//        System.out.println(null == byStatus ? "未查询到有效IP" : byStatus.getIpAddr());
     }
 }

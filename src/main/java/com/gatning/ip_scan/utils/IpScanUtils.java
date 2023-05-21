@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * 扫描IP地址工具类
@@ -17,7 +19,8 @@ public class IpScanUtils {
      * 获取IP地址
      * @return 第一条IPV6公网地址
      */
-    public String getIpAddress() {
+    public List<String> getIpAddress() {
+        List<String> ipList  = new ArrayList<>();
         try {
             //获取所有网卡
             Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -36,7 +39,7 @@ public class IpScanUtils {
                             //排除本地私有地址，仅过滤240e开头的公网ipv6地址
                             if (ip.getHostAddress().startsWith("240e") && ip.getHostAddress().length() > 30) {
                                 System.out.println("扫描到的地址：" + ip.getHostAddress());
-                                return ip.getHostAddress().split("%")[0];
+                                ipList.add(ip.getHostAddress().split("%")[0]);
                             }
                         }
                     }
@@ -45,7 +48,7 @@ public class IpScanUtils {
         } catch (Exception e) {
             System.err.println("IP地址获取失败" + e.getMessage());
         }
-        return null;
+        return ipList;
     }
 
 }

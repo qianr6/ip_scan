@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * ip记录表(LocalIp)表服务实现类
@@ -88,7 +89,7 @@ public class LocalIpServiceImpl implements LocalIpService {
      * @return IP
      */
     @Override
-    public LocalIp getByStatus(Boolean ipStatus) {
+    public List<LocalIp> getByStatus(Boolean ipStatus) {
         return localIpDao.getByStatus(ipStatus);
     }
 }
