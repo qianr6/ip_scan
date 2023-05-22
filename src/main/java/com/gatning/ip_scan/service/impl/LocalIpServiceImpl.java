@@ -59,6 +59,16 @@ public class LocalIpServiceImpl implements LocalIpService {
         return localIp;
     }
 
+
+    /**
+     * 批量插入
+     * @param localIps
+     * @return
+     */
+    public int insertBatch(List<LocalIp> localIps) {
+        return localIpDao.insertBatch(localIps);
+    }
+
     /**
      * 修改数据
      *

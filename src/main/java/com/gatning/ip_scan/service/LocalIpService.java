@@ -43,6 +43,13 @@ public interface LocalIpService {
     LocalIp insert(LocalIp localIp);
 
     /**
+     * 批量插入
+     * @param localIps
+     * @return
+     */
+    int insertBatch(List<LocalIp> localIps);
+
+    /**
      * 修改数据
      *
      * @param localIp 实例对象

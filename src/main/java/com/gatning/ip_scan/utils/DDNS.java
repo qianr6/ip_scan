@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,16 +77,16 @@ public class  DDNS {
         List<String> ipNowList = byStatus.stream().map(LocalIp::getIpAddr).collect(Collectors.toList());
         //exitIp = null == byStatus || (!byStatus.getIpAddr().equals(currentHostIP));
         ipNowList.retainAll(currentHostIP);
+        List<LocalIp> newLocalIps = new ArrayList<>();
         if (ipNowList.isEmpty()) {
             for(String ipNew : currentHostIP) {
-
-
+                //记录新的IP
+                LocalIp newLocalIp = new LocalIp();
+                newLocalIp.setIpAddr(ipNew);
+                newLocalIp.setCreatedDate(new Date());
+                newLocalIp.setIpStatus(true);
+                newLocalIps.add(newLocalIp);
             }
-            //记录新的IP
-            LocalIp newLocalIp = new LocalIp();
-            newLocalIp.setIpAddr(currentHostIP);
-            newLocalIp.setCreatedDate(new Date());
-            newLocalIp.setIpStatus(true);
             // 设置鉴权参数，初始化客户端
             DefaultProfile profile = DefaultProfile.getProfile(
                     "cn-chengdu",// 地域ID
@@ -120,17 +121,18 @@ public class  DDNS {
                     // 记录ID
                     updateDomainRecordRequest.setRecordId(recordId);
                     // 将主机记录值改为当前主机IP
-                    updateDomainRecordRequest.setValue(currentHostIP);
+                    updateDomainRecordRequest.setValue(currentHostIP.get(0));
                     // 解析记录类型
                     updateDomainRecordRequest.setType("AAAA");
                     UpdateDomainRecordResponse updateDomainRecordResponse = updateDomainRecord(updateDomainRecordRequest, client);
                     log_print("updateDomainRecord", updateDomainRecordResponse);
-                    if(null != byStatus) {
-                        //失效旧IP
-                        byStatus.setIpStatus(false);
-                        localIpService.update(byStatus);
-                    }
-                    localIpService.insert(newLocalIp);
+                    //失效旧IP
+                    byStatus.forEach(statusIp -> {
+                        statusIp.setIpStatus(false);
+                        localIpService.update(statusIp);
+                    });
+                    //byStatus.setIpStatus(false);
+                    localIpService.insertBatch(newLocalIps);
                     resultEntity.setCode(200);
                     resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
                 } else {
