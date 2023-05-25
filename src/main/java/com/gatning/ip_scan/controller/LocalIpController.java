@@ -1,13 +1,9 @@
 package com.gatning.ip_scan.controller;
 
-import com.gatning.ip_scan.entity.LocalIp;
-import com.gatning.ip_scan.service.LocalIpService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * ip记录表(LocalIp)表控制层
@@ -16,68 +12,39 @@ import javax.annotation.Resource;
  * @since 2022-10-07 20:17:10
  */
 @RestController
-@RequestMapping("localIp")
+@RequestMapping("/localIp")
 public class LocalIpController {
-    /**
-     * 服务对象
-     */
-    @Resource
-    private LocalIpService localIpService;
 
-    /**
-     * 分页查询
-     *
-     * @param localIp 筛选条件
-     * @param pageRequest      分页对象
-     * @return 查询结果
-     */
-    @GetMapping
-    public ResponseEntity<Page<LocalIp>> queryByPage(LocalIp localIp, PageRequest pageRequest) {
-        return ResponseEntity.ok(this.localIpService.queryByPage(localIp, pageRequest));
-    }
-
-    /**
-     * 通过主键查询单条数据
-     *
-     * @param id 主键
-     * @return 单条数据
-     */
-    @GetMapping("{id}")
-    public ResponseEntity<LocalIp> queryById(@PathVariable("id") Integer id) {
-        return ResponseEntity.ok(this.localIpService.queryById(id));
-    }
-
-    /**
-     * 新增数据
-     *
-     * @param localIp 实体
-     * @return 新增结果
-     */
-    @PostMapping
-    public ResponseEntity<LocalIp> add(LocalIp localIp) {
-        return ResponseEntity.ok(this.localIpService.insert(localIp));
-    }
-
-    /**
-     * 编辑数据
-     *
-     * @param localIp 实体
-     * @return 编辑结果
-     */
-    @PutMapping
-    public ResponseEntity<LocalIp> edit(LocalIp localIp) {
-        return ResponseEntity.ok(this.localIpService.update(localIp));
-    }
-
-    /**
-     * 删除数据
-     *
-     * @param id 主键
-     * @return 删除是否成功
-     */
-    @DeleteMapping
-    public ResponseEntity<Boolean> deleteById(Integer id) {
-        return ResponseEntity.ok(this.localIpService.deleteById(id));
+    @GetMapping("/testInterface")
+    public ResponseEntity<String> testInterface(HttpServletRequest request) {
+        // 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_CLIENT_IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getRemoteAddr();
+            }
+        } else if (ip.length() > 15) {
+            String[] ips = ip.split(",");
+            for (String s : ips) {
+                if (!("unknown".equalsIgnoreCase(s))) {
+                    ip = s;
+                    break;
+                }
+            }
+        }
+        return ResponseEntity.ok("此返回代表访问成功,你的IP地址：" + ip);
     }
 
 }
