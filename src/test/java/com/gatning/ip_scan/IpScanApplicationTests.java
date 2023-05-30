@@ -62,7 +62,8 @@ class IpScanApplicationTests {
 
     @Test
     public void testIpConfig() {
-//        LocalIp byStatus = localIpService.getByStatus(true);
-//        System.out.println(null == byStatus ? "未查询到有效IP" : byStatus.getIpAddr());
+        String currentHostIP = ipScanUtils.getCurrentHostIP();
+        System.out.println(currentHostIP);
+
     }
 }

@@ -35,14 +35,6 @@ public class LocalIpController {
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
-        } else if (ip.length() > 15) {
-            String[] ips = ip.split(",");
-            for (String s : ips) {
-                if (!("unknown".equalsIgnoreCase(s))) {
-                    ip = s;
-                    break;
-                }
-            }
         }
         return ResponseEntity.ok("此返回代表访问成功,你的IP地址：" + ip);
     }
