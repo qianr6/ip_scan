@@ -91,7 +91,10 @@ public class IpScanUtils {
         }
 
         JSONObject jsonObject = JSONObject.parseObject(result.toString());
-        return jsonObject.get("ip").toString();
+        if(null != jsonObject.get("ip") && jsonObject.get("ip").toString().startsWith("240")) {
+            return jsonObject.get("ip").toString();
+        }
+        return null;
     }
 
 }
