@@ -142,6 +142,9 @@ public class DDNS {
                     resultEntity.setCode(300);
                     resultEntity.setRemark("获取阿里云解析记录失败，请检查域名配置！");
                 }
+            } else {
+                resultEntity.setCode(100);
+                resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
             }
 
         return resultEntity;
