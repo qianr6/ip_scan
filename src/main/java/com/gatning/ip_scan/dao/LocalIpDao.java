@@ -86,7 +86,7 @@ public interface LocalIpDao {
      * @param ipStatus 状态
      * @return IP
      */
-    List<LocalIp> getByStatus(@Param("ipStatus")Boolean ipStatus);
+    LocalIp getByStatus(@Param("ipStatus")Boolean ipStatus);
 
 }
 

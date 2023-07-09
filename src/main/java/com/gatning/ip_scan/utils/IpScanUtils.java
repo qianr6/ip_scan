@@ -1,8 +1,11 @@
 package com.gatning.ip_scan.utils;
 
 import com.alibaba.druid.support.json.JSONUtils;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,6 +21,9 @@ import java.util.regex.Pattern;
  */
 @Component
 public class IpScanUtils {
+
+    @Value("${ip.getIpUrl}")
+    private String getIpUrl;
 
     /**
      * 获取IP地址
@@ -59,42 +65,23 @@ public class IpScanUtils {
      * 获取当前主机公网IP
      */
     public String getCurrentHostIP(){
-        // 这里使用jsonip.com第三方接口获取本地IP
-        String jsonip = "https://ipv6.jsonip.com/";
-        // 接口返回结果
-        StringBuilder result = new StringBuilder();
-        BufferedReader in = null;
-        try {
-            // 使用HttpURLConnection网络请求第三方接口
-            URL url = new URL(jsonip);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-            in = new BufferedReader(new InputStreamReader(
-                    urlConnection.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result.append(line);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // 使用finally块来关闭输入流
-        finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
+        RestTemplate restTemplate=new RestTemplate();
+        // 发送get请求，并用String数据格式接收
+        String result = restTemplate.getForObject(getIpUrl, String.class);
+
+        // 获取结果转 json
+        System.out.println(result);
+        JSONObject jsonObject =  JSON.parseObject(result);
+
+        // 转为json后，则可以根据json的键值取出value，
+        // jsonObject..get()中填写键值（key）
+        String value = (String) jsonObject.get("ip");
+        if(value.startsWith("240")) {
+            return value;
+        } else {
+            return null;
         }
 
-        JSONObject jsonObject = JSONObject.parseObject(result.toString());
-        if(null != jsonObject.get("ip") && jsonObject.get("ip").toString().startsWith("240")) {
-            return jsonObject.get("ip").toString();
-        }
-        return null;
     }
 
 }

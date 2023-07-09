@@ -8,7 +8,6 @@ import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordRequest;
 import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
-import com.aliyuncs.utils.StringUtils;
 import com.gatning.ip_scan.entity.LocalIp;
 import com.gatning.ip_scan.entity.ResultEntity;
 import com.gatning.ip_scan.service.LocalIpService;
@@ -16,6 +15,7 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,12 +72,14 @@ public class DDNS {
     public ResultEntity send() {
         ResultEntity resultEntity = new ResultEntity();
         // 当前主机公网IP
-        List<String> currentHostIP = ipScanUtils.getIpAddress();
-        //旧IP
-        List<LocalIp> oldiIps = localIpService.getByStatus(true);
-        List<String> collect = oldiIps.stream().map(LocalIp::getIpAddr).collect(Collectors.toList());
-        boolean b = collect.retainAll(currentHostIP);
-            if (b) {
+        String currentHostIP = ipScanUtils.getCurrentHostIP();
+        if(StringUtils.isEmpty(currentHostIP)) {
+            resultEntity.setCode(300);
+            resultEntity.setRemark("获取公网IP v6地址失败！请检查网络状态！");
+        } else {
+            //旧IP
+            LocalIp oldiIps = localIpService.getByStatus(true);
+            if (oldiIps == null || !oldiIps.getIpAddr().equals(currentHostIP)) {
                 // 设置鉴权参数，初始化客户端
                 DefaultProfile profile = DefaultProfile.getProfile(
                         "cn-chengdu",// 地域ID
@@ -112,25 +114,24 @@ public class DDNS {
                         // 记录ID
                         updateDomainRecordRequest.setRecordId(recordId);
                         // 将主机记录值改为当前主机IP
-                        updateDomainRecordRequest.setValue(currentHostIP.get(0));
+                        updateDomainRecordRequest.setValue(currentHostIP);
                         // 解析记录类型
                         updateDomainRecordRequest.setType("AAAA");
                         UpdateDomainRecordResponse updateDomainRecordResponse = updateDomainRecord(updateDomainRecordRequest, client);
                         log_print("updateDomainRecord", updateDomainRecordResponse);
 
                         //向数据库添加新的IP地址记录
-                        currentHostIP.forEach(LocalIpString -> {
-                            LocalIp localIp = new LocalIp();
-                            localIp.setIpAddr(LocalIpString);
-                            localIp.setCreatedDate(new Date());
-                            localIp.setIpStatus(true);
-                            localIpService.insert(localIp);
-                        });
+
+                        LocalIp localIp = new LocalIp();
+                        localIp.setIpAddr(currentHostIP);
+                        localIp.setCreatedDate(new Date());
+                        localIp.setIpStatus(true);
+                        localIpService.insert(localIp);
+
                         //失效旧IP
-                        oldiIps.forEach(localIp -> {
-                            localIp.setIpStatus(false);
-                            localIpService.update(localIp);
-                        });
+                        localIp.setIpStatus(false);
+                        localIpService.update(localIp);
+
 
                         resultEntity.setCode(200);
                         resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
@@ -146,6 +147,7 @@ public class DDNS {
                 resultEntity.setCode(100);
                 resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
             }
+        }
 
         return resultEntity;
     }

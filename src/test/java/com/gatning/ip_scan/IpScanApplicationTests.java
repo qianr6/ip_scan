@@ -1,5 +1,7 @@
 package com.gatning.ip_scan;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.gatning.ip_scan.entity.LocalIp;
 import com.gatning.ip_scan.service.LocalIpService;
 import com.gatning.ip_scan.utils.DDNS;
@@ -7,6 +9,7 @@ import com.gatning.ip_scan.utils.IpScanUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -62,8 +65,21 @@ class IpScanApplicationTests {
 
     @Test
     public void testIpConfig() {
-        String currentHostIP = ipScanUtils.getCurrentHostIP();
-        System.out.println(currentHostIP);
+        RestTemplate restTemplate=new RestTemplate();
+            // url 自行填写
+            String url = "https://v6.myip.la/json";
 
-    }
+            // 发送get请求，并用String数据格式接收
+            String result = restTemplate.getForObject(url, String.class);
+
+            // 获取结果转 json
+            System.out.println(result);
+            JSONObject jsonObject =  JSON.parseObject(result);
+
+            // 转为json后，则可以根据json的键值取出value，
+            // jsonObject..get()中填写键值（key）
+            String value = (String) jsonObject.get("ip");
+            System.out.println(value);
+        }
+
 }
