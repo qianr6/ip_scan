@@ -129,9 +129,10 @@ public class DDNS {
                         localIpService.insert(localIp);
 
                         //失效旧IP
-                        localIp.setIpStatus(false);
-                        localIpService.update(localIp);
-
+                        if(null != oldiIps) {
+                            oldiIps.setIpStatus(false);
+                            localIpService.update(oldiIps);
+                        }
 
                         resultEntity.setCode(200);
                         resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
