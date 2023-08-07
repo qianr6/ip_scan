@@ -1,6 +1,7 @@
 package com.gatning.ip_scan.utils;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,10 +29,11 @@ public class IpScanUtils {
 
     /**
      * 获取IP地址
+     *
      * @return 第一条IPV6公网地址
      */
     public List<String> getIpAddress() {
-        List<String> ipList  = new ArrayList<>();
+        List<String> ipList = new ArrayList<>();
         try {
             //获取所有网卡
             Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -61,23 +64,22 @@ public class IpScanUtils {
         return ipList;
     }
 
-    /** 通过向外网发送请求，来获取本机IP地址
+    /**
+     * 通过向外网发送请求，来获取本机IP地址
      * 获取当前主机公网IP
      */
-    public String getCurrentHostIP(){
-        RestTemplate restTemplate=new RestTemplate();
+    public String getCurrentHostIP() {
+        RestTemplate restTemplate = new RestTemplate();
         // 发送get请求，并用String数据格式接收
         String result = restTemplate.getForObject(getIpUrl, String.class);
 
         // 获取结果转 json
-        System.out.println(result);
-        JSONObject jsonObject =  JSON.parseObject(result);
-
-        // 转为json后，则可以根据json的键值取出value，
-        // jsonObject..get()中填写键值（key）
-        String value = (String) jsonObject.get("ip");
-        if(value.startsWith("240")) {
-            return value;
+        //System.out.println(result);
+        //JSONObject jsonObject =  JSON.parseObject(result);
+        // 转为json后，则可以根据json的键值取出value
+        //String value = (String) jsonObject.get("ip");
+        if (!StringUtils.isEmpty(result) && result.startsWith("240")) {
+            return result;
         } else {
             return null;
         }

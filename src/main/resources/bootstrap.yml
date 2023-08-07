@@ -63,5 +63,5 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
 
 ip:
-  getIpUrl: https://v6.myip.la/json
+  getIpUrl: http://speed.neu6.edu.cn/getIP.php
 
