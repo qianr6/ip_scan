@@ -5,6 +5,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -70,6 +71,10 @@ public class IpScanUtils {
      */
     public String getCurrentHostIP() {
         RestTemplate restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 设置连接超时时间为 5 秒
+        factory.setReadTimeout(10000); // 设置读取超时时间为 10 秒
+        restTemplate.setRequestFactory(factory);
         // 发送get请求，并用String数据格式接收
         String result = restTemplate.getForObject(getIpUrl, String.class);
 
