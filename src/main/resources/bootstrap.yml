@@ -58,14 +58,14 @@ spring:
 ali-config:
   accessId: LTAI5tB8HaxGzGw7hLrCHXLq
   accessSecret: wUqUxVGS1rA6nE8VahFpR9huxLbqTz
-  dominAble: false
+  dominAble: true
   dingding:
     robotMsgUrl: https://oapi.dingtalk.com/robot/send
     robotSecret: SEC2e98d24ef03ed774e671d239d21e0b4ddb4ade21792a6e4cd6dc56c8a9f808c4
     robotAccesTtoken: 09a372ce0c2d5e01ffa3afc3b98f4d0c0a6ae253804a454b95a91c86ecae35f3
 
 host:
-  myFlag: lenovo-loptop
+  myFlag: DL380P-GEN8
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 

@@ -12,4 +12,9 @@ public class ResultEntity {
      * 描述
      */
     private String remark;
+
+    /**
+     * 主机标志
+     */
+    private String flag;
 }

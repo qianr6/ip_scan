@@ -1,13 +1,12 @@
 package com.gatning.ip_scan.task;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gatning.ip_scan.entity.ResultEntity;
-import com.gatning.ip_scan.entity.SimpleEmailEntity;
 import com.gatning.ip_scan.utils.DDNS;
 import com.gatning.ip_scan.utils.HttpClientUtils;
 import com.gatning.ip_scan.utils.SendMailUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.client.methods.HttpPost;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,9 +16,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 @Slf4j
 public class IpScanTask {
@@ -50,7 +46,7 @@ public class IpScanTask {
             try {
                 sendMsg(send);
             } catch (Exception exception) {
-                log.error("发送钉钉消息失败：" + exception.getMessage());
+                log.error("发送消息失败：" + exception.getMessage());
             }
 //            SimpleEmailEntity emailEntity = new SimpleEmailEntity();
 //            String[] tos = new String[] {"742632713@qq.com"};
@@ -80,13 +76,14 @@ public class IpScanTask {
         String sign = URLEncoder.encode(new String(Base64.encodeBase64(signData)),"UTF-8");
         //拼接ur
         String finalUrl = msgUrl + "?" + "access_token=" + accesToken + "&" + "sign=" + sign + "&" + "timestamp=" + timestamp;
-        Map<String,Object> param = new HashMap<>();
-        param.put("msgtype","text");
-        Map<String,String> content = new HashMap<>();
-        content.put("content", send.getRemark());
-        param.put("text",content);
+        JSONObject parent = new JSONObject();
+        parent.put("msgtype","text");
+        JSONObject content = new JSONObject();
+        content.put("content", send.getFlag() + "\n" + send.getRemark());
+        parent.put("text",content);
         //发送消息
-        HttpClientUtils.post(finalUrl,param);
+        String post = HttpClientUtils.postBody(finalUrl, parent.toJSONString());
+        log.info("钉钉返回：" + post);
         return sign;
     }
 }

@@ -119,7 +119,7 @@
         delete from local_ip where id = #{id}
     </delete>
 
-    <select id="getByStatus" parameterType="boolean" resultMap="BaseResultMap">
+    <select id="getByStatus" resultMap="BaseResultMap">
         select id, ip_addr, created_date, ip_status from local_ip where ip_status = #{ipStatus} and flag = #{flag}
     </select>
 

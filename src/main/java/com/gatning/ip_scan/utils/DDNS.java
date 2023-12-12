@@ -75,6 +75,7 @@ public class DDNS {
 
     public ResultEntity send() {
         ResultEntity resultEntity = new ResultEntity();
+        resultEntity.setFlag(flag);
         // 当前主机公网IP
         String currentHostIP = ipScanUtils.getCurrentHostIP();
         if (StringUtils.isEmpty(currentHostIP)) {
