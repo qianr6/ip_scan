@@ -71,6 +71,6 @@ public interface LocalIpService {
      * @param ipStatus 状态
      * @return IP
      */
-    LocalIp getByStatus(@Param("ipStatus") Boolean ipStatus);
+    LocalIp getByStatus(Boolean ipStatus,String flag);
 
 }

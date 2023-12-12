@@ -31,6 +31,11 @@ public class LocalIp implements Serializable {
      */
     private Boolean ipStatus;
 
+    /**
+     * 主机身份标识
+     */
+    private String flag;
+
 
 
 

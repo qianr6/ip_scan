@@ -8,12 +8,13 @@
         <result property="ipAddr" column="ip_addr" jdbcType="VARCHAR"/>
         <result property="createdDate" column="created_date" jdbcType="TIMESTAMP"/>
         <result property="ipStatus" column="ip_status" jdbcType="BOOLEAN"/>
+        <result property="flag" column="flag" jdbcType="VARCHAR"/>
     </resultMap>
 
     <!--查询单个-->
     <select id="queryById" resultMap="BaseResultMap">
         select
-          id, ip_addr, created_date, ip_status
+          id, ip_addr, created_date, ip_status,flag
         from local_ip
         where id = #{id}
     </select>
@@ -21,7 +22,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="BaseResultMap">
         select
-          id, ip_addr, created_date, ip_status
+          id, ip_addr, created_date, ip_status,flag
         from local_ip
         <where>
             <if test="id != null">
@@ -35,6 +36,9 @@
             </if>
             <if test="ipStatus != null">
                 and ip_status = #{ipStatus}
+            </if>
+            <if test="flag != null">
+                and flag = #{flag},
             </if>
         </where>
         limit #{pageable.offset}, #{pageable.pageSize}
@@ -57,33 +61,37 @@
             <if test="ipStatus != null">
                 and ip_status = #{ipStatus}
             </if>
+            <if test="flag != null">
+                and flag = #{flag},
+            </if>
         </where>
     </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into local_ip(ip_addr, created_date, ip_status)
-        values (#{ipAddr}, #{createdDate}, #{ipStatus})
+        insert into local_ip(ip_addr, created_date, ip_status,flag)
+        values (#{ipAddr}, #{createdDate}, #{ipStatus}, #{flag})
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into local_ip(ip_addr, created_date, ip_status)
+        insert into local_ip(ip_addr, created_date, ip_status,flag)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus})
+        (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus},#{entity.flag})
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into local_ip(ip_addr, created_date, ip_status)
+        insert into local_ip(ip_addr, created_date, ip_status,flag)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus})
+            (#{entity.ipAddr}, #{entity.createdDate}, #{entity.ipStatus}, #{entity.flag})
         </foreach>
         on duplicate key update
         ip_addr = values(ip_addr),
         created_date = values(created_date),
-        ip_status = values(ip_status)
+        ip_status = values(ip_status),
+        flag = values(flag)
     </insert>
 
     <!--通过主键修改数据-->
@@ -99,6 +107,9 @@
             <if test="ipStatus != null">
                 ip_status = #{ipStatus},
             </if>
+            <if test="flag != null">
+                flag = #{flag},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -109,7 +120,7 @@
     </delete>
 
     <select id="getByStatus" parameterType="boolean" resultMap="BaseResultMap">
-        select id, ip_addr, created_date, ip_status from local_ip where ip_status = #{ipStatus}
+        select id, ip_addr, created_date, ip_status from local_ip where ip_status = #{ipStatus} and flag = #{flag}
     </select>
 
 </mapper>

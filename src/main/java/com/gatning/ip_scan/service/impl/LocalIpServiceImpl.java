@@ -99,7 +99,7 @@ public class LocalIpServiceImpl implements LocalIpService {
      * @return IP
      */
     @Override
-    public LocalIp getByStatus(Boolean ipStatus) {
-        return localIpDao.getByStatus(ipStatus);
+    public LocalIp getByStatus(Boolean ipStatus,String flag) {
+        return localIpDao.getByStatus(ipStatus,flag);
     }
 }
