@@ -83,7 +83,7 @@ public class DDNS {
             resultEntity.setRemark("获取公网IP v6地址失败！请检查网络状态！");
         } else {
             //旧IP
-            LocalIp oldiIps = localIpService.getByStatus(true,flag);
+            LocalIp oldiIps = localIpService.getByStatus(true, flag);
             if (oldiIps == null || !oldiIps.getIpAddr().equals(currentHostIP)) {
                 if (dominAble) {
                     // 设置鉴权参数，初始化客户端
@@ -97,7 +97,7 @@ public class DDNS {
                     // 主域名
                     describeDomainRecordsRequest.setDomainName("gatning.top");
                     // 主机记录
-                    describeDomainRecordsRequest.setRRKeyWord("www");
+                    //describeDomainRecordsRequest.setRRKeyWord("www");
                     // 解析记录类型
                     describeDomainRecordsRequest.setType("AAAA");
                     DescribeDomainRecordsResponse describeDomainRecordsResponse = describeDomainRecords(describeDomainRecordsRequest, client);
@@ -106,73 +106,78 @@ public class DDNS {
                     List<DescribeDomainRecordsResponse.Record> domainRecords = describeDomainRecordsResponse.getDomainRecords();
                     // 最新的一条解析记录
                     if (domainRecords.size() != 0) {
-                        DescribeDomainRecordsResponse.Record record = domainRecords.get(0);
-                        // 记录ID
-                        String recordId = record.getRecordId();
-                        // 记录值
-                        String recordsValue = record.getValue();
-                        System.out.println("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
-                        if (!currentHostIP.equals(recordsValue)) {
-                            // 修改解析记录
-                            UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
-                            // 主机记录
-                            updateDomainRecordRequest.setRR("www");
+                        //DescribeDomainRecordsResponse.Record record = domainRecords.get(0);
+                        for (DescribeDomainRecordsResponse.Record record : domainRecords) {
                             // 记录ID
-                            updateDomainRecordRequest.setRecordId(recordId);
-                            // 将主机记录值改为当前主机IP
-                            updateDomainRecordRequest.setValue(currentHostIP);
-                            // 解析记录类型
-                            updateDomainRecordRequest.setType("AAAA");
-                            UpdateDomainRecordResponse updateDomainRecordResponse = updateDomainRecord(updateDomainRecordRequest, client);
-                            log_print("updateDomainRecord", updateDomainRecordResponse);
+                            String recordId = record.getRecordId();
+                            // 记录值
+                            String recordsValue = record.getValue();
+                            System.out.println("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
+                            if (!currentHostIP.equals(recordsValue)) {
+                                // 修改解析记录
+                                UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
+                                // 主机记录
+                                updateDomainRecordRequest.setRR(record.getRR());
+                                // 记录ID
+                                updateDomainRecordRequest.setRecordId(recordId);
+                                // 将主机记录值改为当前主机IP
+                                updateDomainRecordRequest.setValue(currentHostIP);
+                                // 解析记录类型
+                                updateDomainRecordRequest.setType("AAAA");
+                                UpdateDomainRecordResponse updateDomainRecordResponse = updateDomainRecord(updateDomainRecordRequest, client);
+                                log_print("updateDomainRecord", updateDomainRecordResponse);
 
-                            //向数据库添加新的IP地址记录
-
-                            LocalIp localIp = new LocalIp();
-                            localIp.setIpAddr(currentHostIP);
-                            localIp.setCreatedDate(new Date());
-                            localIp.setIpStatus(true);
-                            localIp.setFlag(flag);
-                            localIpService.insert(localIp);
-
-                            //失效旧IP
-                            if (null != oldiIps) {
-                                oldiIps.setIpStatus(false);
-                                localIpService.update(oldiIps);
+                            } else {
+                                resultEntity.setCode(100);
+                                resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
                             }
-
-                            resultEntity.setCode(200);
-                            resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
-                        } else {
-                            resultEntity.setCode(100);
-                            resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
                         }
+                        //向数据库添加新的IP地址记录
+                        LocalIp localIp = new LocalIp();
+                        localIp.setIpAddr(currentHostIP);
+                        localIp.setCreatedDate(new Date());
+                        localIp.setIpStatus(true);
+                        localIp.setFlag(flag);
+                        localIpService.insert(localIp);
+
+                        //失效旧IP
+                        if (null != oldiIps) {
+                            oldiIps.setIpStatus(false);
+                            localIpService.update(oldiIps);
+                        }
+
+                        resultEntity.setCode(200);
+                        resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
                     } else {
                         resultEntity.setCode(300);
                         resultEntity.setRemark("获取阿里云解析记录失败，请检查域名配置！");
                     }
-                } else {
-                    //向数据库添加新的IP地址记录
-                    LocalIp localIp = new LocalIp();
-                    localIp.setIpAddr(currentHostIP);
-                    localIp.setCreatedDate(new Date());
-                    localIp.setIpStatus(true);
-                    localIp.setFlag(flag);
-                    localIpService.insert(localIp);
-                    //失效旧IP
-                    if (null != oldiIps) {
-                        oldiIps.setIpStatus(false);
-                        localIpService.update(oldiIps);
-                    }
-                    resultEntity.setCode(200);
-                    resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
-                }
+//                } else {
+//                    resultEntity.setCode(300);
+//                    resultEntity.setRemark("获取阿里云解析记录失败，请检查域名配置！");
+//                }
             } else {
-                resultEntity.setCode(100);
-                resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
+                //向数据库添加新的IP地址记录
+                LocalIp localIp = new LocalIp();
+                localIp.setIpAddr(currentHostIP);
+                localIp.setCreatedDate(new Date());
+                localIp.setIpStatus(true);
+                localIp.setFlag(flag);
+                localIpService.insert(localIp);
+                //失效旧IP
+                if (null != oldiIps) {
+                    oldiIps.setIpStatus(false);
+                    localIpService.update(oldiIps);
+                }
+                resultEntity.setCode(200);
+                resultEntity.setRemark("更新成功!本次修改记录：" + currentHostIP);
             }
+        } else{
+            resultEntity.setCode(100);
+            resultEntity.setRemark("当前IP地址与当前解析记录相同，不需要更新！");
         }
+    }
 
         return resultEntity;
-    }
+}
 }
