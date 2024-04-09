@@ -80,7 +80,7 @@ public class DDNS {
         String currentHostIP = ipScanUtils.getCurrentHostIP();
         if (StringUtils.isEmpty(currentHostIP)) {
             resultEntity.setCode(300);
-            resultEntity.setRemark("获取公网IP v6地址失败！请检查网络状态！");
+            resultEntity.setRemark("获取公网IP地址失败！请检查网络状态！");
         } else {
             //旧IP
             LocalIp oldiIps = localIpService.getByStatus(true, flag);
@@ -99,7 +99,7 @@ public class DDNS {
                     // 主机记录
                     //describeDomainRecordsRequest.setRRKeyWord("www");
                     // 解析记录类型
-                    describeDomainRecordsRequest.setType("AAAA");
+                    describeDomainRecordsRequest.setType("A");
                     DescribeDomainRecordsResponse describeDomainRecordsResponse = describeDomainRecords(describeDomainRecordsRequest, client);
                     log_print("describeDomainRecords", describeDomainRecordsResponse);
 
@@ -123,7 +123,7 @@ public class DDNS {
                                 // 将主机记录值改为当前主机IP
                                 updateDomainRecordRequest.setValue(currentHostIP);
                                 // 解析记录类型
-                                updateDomainRecordRequest.setType("AAAA");
+                                updateDomainRecordRequest.setType("A");
                                 UpdateDomainRecordResponse updateDomainRecordResponse = updateDomainRecord(updateDomainRecordRequest, client);
                                 log_print("updateDomainRecord", updateDomainRecordResponse);
 

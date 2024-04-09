@@ -4,11 +4,8 @@ import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.alidns.model.v20150109.DescribeDomainRecordsRequest;
 import com.aliyuncs.alidns.model.v20150109.DescribeDomainRecordsResponse;
-import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordRequest;
-import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
-import com.gatning.ip_scan.entity.LocalIp;
 import com.gatning.ip_scan.service.LocalIpService;
 import com.gatning.ip_scan.utils.DDNS;
 import com.gatning.ip_scan.utils.IpScanUtils;
@@ -84,7 +81,7 @@ class IpScanApplicationTests {
         // 主机记录
         //describeDomainRecordsRequest.setRRKeyWord("note");
         // 解析记录类型
-        describeDomainRecordsRequest.setType("AAAA");
+        describeDomainRecordsRequest.setType("A");
         DescribeDomainRecordsResponse describeDomainRecordsResponse = describeDomainRecords(describeDomainRecordsRequest, client);
         System.out.printf("describeDomainRecords", describeDomainRecordsResponse);
 
